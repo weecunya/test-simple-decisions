@@ -1,10 +1,5 @@
 from pydantic import BaseModel
-import datetime
-
-
-class TickersAvailable(BaseModel):
-    btc_usd: str = "btc_usd"
-    eth_usd: str = "eth_usd"
+from typing import Literal
 
 
 class Base(BaseModel):
@@ -18,11 +13,7 @@ class TickerResponse(Base):
     class Config:
         from_attributes = True
 
-class TickerResponseList(Base):
-    prices: list[TickerResponse]
-
-
 
 class TickerRequest(Base):
-    ticker: str = TickersAvailable
+    ticker: str = Literal["btc_usd", "eth_usd"]
     timestamp: int | None

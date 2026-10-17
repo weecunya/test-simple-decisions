@@ -2,7 +2,10 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from ..models.ticker import TickerData
 
-from ..schemas.schemas import *
+from ..schemas.schemas import (
+    TickerResponse,
+    TickerRequest
+)
 
 async def read_crypto_data( query_input: TickerRequest, db: AsyncSession ) -> TickerResponse:
     data = await db.execute(select(TickerData).where(TickerData.ticker == query_input.ticker).order_by(TickerData.timestamp.desc()))
@@ -14,7 +17,7 @@ async def read_crypto_data( query_input: TickerRequest, db: AsyncSession ) -> Ti
     })
 
 
-async def read_crypto_all_data( query_input: TickerRequest, db: AsyncSession ) -> TickerResponseList:
+async def read_crypto_all_data( query_input: TickerRequest, db: AsyncSession ) -> list[TickerResponse]:
     query = select(TickerData).where(TickerData.ticker == query_input.ticker)
     data = await db.execute(query)
     result = data.scalars().all()

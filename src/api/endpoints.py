@@ -2,9 +2,16 @@ from fastapi import APIRouter, Depends, Query
 from typing import Annotated
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ..core.crud import *
+from ..core.crud import (
+    read_crypto_by_stamp,
+    read_crypto_data,
+    read_crypto_all_data
+)
 from ..core.database import DatabaseManager
-from ..schemas.schemas import *
+from ..schemas.schemas import (
+    TickerResponse,
+    TickerRequest
+)
 from ..core.config import Config
 
 router = APIRouter()
@@ -18,9 +25,9 @@ DbSession = Annotated[AsyncSession, Depends(db_manager.get_db)]
 
 @router.get("/prices")
 async def prices(
-    ticker: str = Query(...),
-    db: AsyncSession = Depends(db_manager.get_db)
-) -> TickerResponseList:
+    db: DbSession,
+    ticker: str = Query(...)
+) -> list[TickerResponse]:
     data = await read_crypto_all_data(
         TickerRequest.model_validate({
             "ticker": ticker,
@@ -31,8 +38,8 @@ async def prices(
 
 @router.get("/prices/latest")
 async def latest(
-    ticker: str = Query(...),
-    db: AsyncSession = Depends(db_manager.get_db)
+    db: DbSession,
+    ticker: str = Query(...)
 ) -> TickerResponse:
     data = await read_crypto_data(
         TickerRequest.model_validate({
@@ -44,9 +51,9 @@ async def latest(
 
 @router.get("/prices/filter")
 async def filter(
+    db: DbSession,
     ticker: str = Query(...),
-    timestamp: str = Query(...),
-    db: AsyncSession = Depends(db_manager.get_db)
+    timestamp: str = Query(...)
 ) -> TickerResponse:
     data = await read_crypto_by_stamp(
         TickerRequest.model_validate({

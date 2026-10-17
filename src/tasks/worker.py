@@ -2,18 +2,19 @@ import asyncio
 import time
 from .celery_app import celery_app
 from ..clients.client import Client 
-from ..core.database import AsyncSessionLocal 
+from ..core.database import DatabaseManager
 from ..models.ticker import TickerData
 from ..core.config import Config
 
 config = Config()
+db_manager = DatabaseManager
 
 
 async def async_fetch_and_save():
     client = Client(config.BASE_URL)
     tickers = ["btc_usd", "eth_usd"]
     
-    async with AsyncSessionLocal() as session:
+    async with db_manager.get_db() as session:
         for ticker in tickers:
             try:
                 result = await client.fetch("/get_index_price", params={"index_name": ticker})
@@ -29,7 +30,7 @@ async def async_fetch_and_save():
                         timestamp=int(time.time())
                     )
                     session.add(new_record)
-                    session.commit()
+                    await session.commit()
                     print("success")
             except Exception as e:
                 print(f"Ошибка при получении {ticker}: {e}")

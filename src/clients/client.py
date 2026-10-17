@@ -1,9 +1,5 @@
 import aiohttp
 
-from ..core.config import Config
-
-config = Config()
-
 class Client:
     def __init__(self, base_url: str):  
         self.base_url = base_url
