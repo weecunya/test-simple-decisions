@@ -1,1 +1,8 @@
 .env
+celerybeat-schedule
+celerybeat-schedule-shm
+celerybeat-schedule-wal
+__pycache__/
+*.py[cod]
+*$py.class
+.venv
