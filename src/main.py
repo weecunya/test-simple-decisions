@@ -8,6 +8,7 @@ from .api.endpoints import router as api_router
 from .core.database import DatabaseManager, Base
 from .core.config import Config
 
+
 config = Config()
 db_manager = DatabaseManager(config.SQLALCHEMY_DATABASE_URL if config.SQLALCHEMY_DATABASE_URL else 'sqlite+aiosqlite:///:memory:')
 
@@ -15,7 +16,6 @@ db_manager = DatabaseManager(config.SQLALCHEMY_DATABASE_URL if config.SQLALCHEMY
 async def lifespan(app: FastAPI):
     async with db_manager.engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-        print("Success")
     yield
     await db_manager.engine.dispose()
 
