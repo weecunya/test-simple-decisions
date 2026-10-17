@@ -7,7 +7,7 @@ from ..models.ticker import TickerData
 from ..core.config import Config
 
 config = Config()
-db_manager = DatabaseManager
+db_manager = DatabaseManager(config.SQLALCHEMY_DATABASE_URL)
 
 
 async def async_fetch_and_save():

@@ -15,5 +15,5 @@ class TickerResponse(Base):
 
 
 class TickerRequest(Base):
-    ticker: str = Literal["btc_usd", "eth_usd"]
+    ticker: Literal["btc_usd", "eth_usd"]
     timestamp: int | None
