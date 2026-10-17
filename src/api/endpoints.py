@@ -1,6 +1,11 @@
-from fastapi import APIRouter, Depends, Query
 from typing import Annotated
+
+from fastapi import APIRouter, Depends, Query
+from fastapi.responses import JSONResponse, PlainTextResponse
+from fastapi import Response
+
 from sqlalchemy.ext.asyncio import AsyncSession
+import json
 
 from ..core.crud import (
     read_crypto_by_stamp,
@@ -14,12 +19,10 @@ from ..schemas.schemas import (
 )
 from ..core.config import Config
 
+
 router = APIRouter()
-
 config = Config()
-db_manager = DatabaseManager(config.SQLALCHEMY_DATABASE_URL)
-
-
+db_manager = DatabaseManager(config.SQLALCHEMY_DATABASE_URL if config.SQLALCHEMY_DATABASE_URL else 'sqlite+aiosqlite:///:memory:')
 DbSession = Annotated[AsyncSession, Depends(db_manager.get_db)]
 
 
@@ -61,4 +64,5 @@ async def filter(
             "timestamp": timestamp
             }), db)
     return data
-    
+
+

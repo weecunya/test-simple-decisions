@@ -1,3 +1,4 @@
+from fastapi import HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from ..models.ticker import TickerData
@@ -10,6 +11,13 @@ from ..schemas.schemas import (
 async def read_crypto_data( query_input: TickerRequest, db: AsyncSession ) -> TickerResponse:
     data = await db.execute(select(TickerData).where(TickerData.ticker == query_input.ticker).order_by(TickerData.timestamp.desc()))
     result = data.scalars().first()
+    if result is None:
+        raise HTTPException(
+            status_code=404,
+            detail={
+                "message": "Not found"
+            }
+        )
     return TickerResponse.model_validate({
         "ticker": result.ticker,
         "price": result.price,
@@ -21,6 +29,13 @@ async def read_crypto_all_data( query_input: TickerRequest, db: AsyncSession ) -
     query = select(TickerData).where(TickerData.ticker == query_input.ticker)
     data = await db.execute(query)
     result = data.scalars().all()
+    if result is None:
+        raise HTTPException(
+            status_code=404,
+            detail={
+                "message": "Not found"
+            }
+        )
     return list(TickerResponse.model_validate({
         "ticker": res.ticker,
         "price": res.price,
@@ -33,6 +48,13 @@ async def read_crypto_by_stamp( query_input: TickerRequest, db: AsyncSession) ->
     query = select(TickerData).where(TickerData.ticker == query_input.ticker).where(TickerData.timestamp == query_input.timestamp)
     data = await db.execute(query)
     result = data.scalars().first()
+    if result is None:
+        raise HTTPException(
+            status_code=404,
+            detail={
+                "message": "Not found"
+            }
+        )
     return TickerResponse.model_validate({
             "ticker": result.ticker,
             "price": result.price,

@@ -2,14 +2,14 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
-from .models.ticker import TickerData
 from .api.endpoints import router as api_router
 from .core.database import DatabaseManager, Base
 from .core.config import Config
 
 config = Config()
-db_manager = DatabaseManager(config.SQLALCHEMY_DATABASE_URL)
+db_manager = DatabaseManager(config.SQLALCHEMY_DATABASE_URL if config.SQLALCHEMY_DATABASE_URL else 'sqlite+aiosqlite:///:memory:')
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -43,3 +43,17 @@ def health():
     return {"status": "ok"}
 
 
+from fastapi import Request
+from pydantic import ValidationError
+
+
+@app.exception_handler(ValidationError)
+async def pydantic_validation_exception_handler(request: Request, exc: ValidationError):
+    
+    return JSONResponse(
+        status_code=422,
+        content={
+            "detail": "Response serialization error",
+            "errors": exc.errors()  
+        },
+    )
